@@ -70,3 +70,46 @@ test_that("matrix setInvMatrix/getInvMatrix", {
   expect_that(smartMatrix$getInvMatrix(), is_a("matrix"))
   expect_equal(smartMatrix$getInvMatrix(), invMatrix)
 })
+
+test_that("cacheSolve returns propper inverses", {
+  simpleMatrix <- matrix(c(1,2,3,4),
+                         ncol=2,
+                         nrow=2)
+  invMatrix <- solve(simpleMatrix)
+  
+  smartMatrix <- makeCacheMatrix(simpleMatrix)
+#  print(simpleMatrix)
+#  print(invMatrix)
+#  print(smartMatrix)
+  expect_equal(cacheSolve(smartMatrix), invMatrix)
+  size <- 1024
+
+  hugeMatrix <- matrix(0, nrow=size, ncol=size)
+  for(i in 1:size)
+  {
+    hugeMatrix[i,i] <- i
+  }
+  
+  smartHugeMatrix <- makeCacheMatrix(hugeMatrix)
+  expect_equal(cacheSolve(smartHugeMatrix), solve(hugeMatrix))
+
+})
+
+test_that("cacheSolve optimizes speed", {
+  size <- 1024*2
+  hugeMatrix <- matrix(0, nrow=size, ncol=size)
+  for(i in 1:size)
+  {
+    hugeMatrix[i,i] <- i
+  }
+  
+  time_1_1 <- system.time(solve(hugeMatrix))
+  time_1_2 <- system.time(solve(hugeMatrix))
+  expect_equal(time_1_1, time_1_1)
+    
+  smartHugeMatrix <- makeCacheMatrix(hugeMatrix)
+  time_2_1 <- system.time(cacheSolve(smartHugeMatrix))
+  time_2_2 <- system.time(cacheSolve(smartHugeMatrix))
+ 
+  expect_true(time_2_1["user.self"] > time_2_2["user.self"])
+})
