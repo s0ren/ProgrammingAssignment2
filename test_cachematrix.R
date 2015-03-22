@@ -95,6 +95,12 @@ test_that("cacheSolve returns propper inverses", {
 
 })
 
+### I think the timing test here is rather cool. 
+## I first show that using solve two time is equally time consuming (equally
+## slow). That is, within a certain tollerance. 
+## Then I show that first run of cacheSolve is slower than second run.
+## Presumably also subsequent runs, but I dont test that yet.
+
 test_that("cacheSolve optimizes speed", {
   size <- 1024*2
   hugeMatrix <- matrix(0, nrow=size, ncol=size)
@@ -105,7 +111,7 @@ test_that("cacheSolve optimizes speed", {
   
   time_1_1 <- system.time(solve(hugeMatrix))
   time_1_2 <- system.time(solve(hugeMatrix))
-  expect_equal(time_1_1, time_1_1)
+  expect_equal(time_1_1["user.self"], time_1_2["user.self"], tolerance=0.05)
     
   smartHugeMatrix <- makeCacheMatrix(hugeMatrix)
   time_2_1 <- system.time(cacheSolve(smartHugeMatrix))
